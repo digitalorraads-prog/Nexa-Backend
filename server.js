@@ -19,7 +19,8 @@ app.set("trust proxy", 1); // Trust the first proxy (Render)
 const allowedOrigins = [
   "http://localhost:5173",
   "https://nexa-ip26.onrender.com",
-  "https://nexa-infotech.vercel.app"
+  "https://nexa-infotech.vercel.app",
+  "https://tubular-speculoos-df6c39.netlify.app"
 ];
 
 app.use(cors({
