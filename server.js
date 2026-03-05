@@ -14,8 +14,22 @@ mongoose.connect(process.env.MONGO_URI)
   .catch(err => console.log("Mongo Error ❌", err));
 
 /* ================= MIDDLEWARE ================= */
+app.set("trust proxy", 1); // Trust the first proxy (Render)
+
+const allowedOrigins = [
+  "http://localhost:5173",
+  "https://nexa-ip26.onrender.com",
+  "https://nexa-infotech.vercel.app"
+];
+
 app.use(cors({
-  origin: "http://localhost:5173", // frontend URL
+  origin: (origin, callback) => {
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error("Not allowed by CORS"));
+    }
+  },
   credentials: true
 }));
 
@@ -33,8 +47,8 @@ app.use(session({
   }),
   cookie: {
     httpOnly: true,
-    secure: false,          // true only in production (https)
-    sameSite: "lax",
+    secure: process.env.NODE_ENV === "production",
+    sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
     maxAge: 1000 * 60 * 60 * 24
   }
 }));
