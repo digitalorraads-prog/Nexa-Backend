@@ -12,12 +12,12 @@ router.post("/login", (req, res) => {
 
   // Hardcoded credentials - ideally should be from database
   if (email === "admin@gmail.com" && password === "123456") {
-    req.session.admin = { 
+    req.session.admin = {
       email,
       loginTime: new Date().toISOString()
     };
-    
-    return res.json({ 
+
+    return res.json({
       message: "Login Successful",
       admin: { email } // Don't send sensitive data
     });
@@ -29,7 +29,7 @@ router.post("/login", (req, res) => {
 /* CHECK AUTH */
 router.get("/check-auth", (req, res) => {
   if (req.session?.admin) {
-    return res.json({ 
+    return res.json({
       authenticated: true,
       admin: { email: req.session.admin.email }
     });
@@ -47,14 +47,14 @@ router.post("/logout", (req, res) => {
     if (err) {
       return res.status(500).json({ message: "Logout failed" });
     }
-    
+
     res.clearCookie("nexa.sid", {
       path: '/',
       httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: 'strict'
+      secure: true,
+      sameSite: 'none'
     });
-    
+
     res.json({ message: "Logged out successfully" });
   });
 });
