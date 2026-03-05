@@ -21,12 +21,22 @@ const allowedOrigins = [
   "https://nexa-ip26.onrender.com",
   "https://nexa-infotech.vercel.app",
   "https://tubular-speculoos-df6c39.netlify.app",
-  "https://nexainfotech.netlify.app"
+  "https://nexainfotech.netlify.app",
+  /\.netlify\.app$/, // Allow all netlify subdomains
+  /\.onrender\.com$/  // Allow all render subdomains
 ];
 
 app.use(cors({
   origin: (origin, callback) => {
-    if (!origin || allowedOrigins.includes(origin)) {
+    // Allow requests with no origin (like mobile apps or curl)
+    if (!origin) return callback(null, true);
+
+    const isAllowed = allowedOrigins.some(allowed => {
+      if (allowed instanceof RegExp) return allowed.test(origin);
+      return allowed === origin;
+    });
+
+    if (isAllowed) {
       callback(null, true);
     } else {
       callback(new Error("Not allowed by CORS"));
@@ -42,15 +52,16 @@ app.use(express.urlencoded({ extended: true }));
 app.use(session({
   name: "nexa.sid",
   secret: process.env.SESSION_SECRET,
-  resave: false,
+  proxy: true, // Required for secure cookies behind a proxy (like Render)
+  resave: true, // Force session to save even if not modified
   saveUninitialized: false,
   store: MongoStore.create({
     mongoUrl: process.env.MONGO_URI,
   }),
   cookie: {
     httpOnly: true,
-    secure: true, // Always true for cross-site cookies
-    sameSite: 'none', // Required for cross-site cookies
+    secure: true,
+    sameSite: 'none',
     maxAge: 1000 * 60 * 60 * 24
   }
 }));
