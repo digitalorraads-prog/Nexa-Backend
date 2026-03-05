@@ -32,7 +32,7 @@ const heroSchema = new mongoose.Schema(
     heroName: {
       type: String,
       required: true,
-      default: function() {
+      default: function () {
         return `${this.pageName} Hero - ${new Date().toLocaleDateString()}`;
       }
     },
@@ -111,6 +111,29 @@ const heroSchema = new mongoose.Schema(
       type: String,
       enum: ['fade', 'slide', 'zoom', 'none'],
       default: 'fade'
+    },
+    fontSize: {
+      title: { type: String, default: 'large' },
+      subtitle: { type: String, default: 'medium' },
+      description: { type: String, default: 'medium' },
+      badge: { type: String, default: 'medium' }
+    },
+    colorScheme: {
+      type: String,
+      default: 'dark'
+    },
+    customColors: {
+      title: { type: String, default: 'text-white' },
+      subtitle: { type: String, default: 'text-cyan-400' },
+      description: { type: String, default: 'text-gray-300' }
+    },
+    useCustomColors: {
+      type: Boolean,
+      default: false
+    },
+    badgeStyle: {
+      type: String,
+      default: 'bg-gradient-to-r from-cyan-500 to-blue-600 text-white'
     },
     sliderSettings: {
       autoplay: { type: Boolean, default: true },
