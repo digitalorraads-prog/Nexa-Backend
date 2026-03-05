@@ -62,6 +62,7 @@ app.use(session({
     httpOnly: true,
     secure: true,
     sameSite: 'none',
+    partitioned: true, // Required for modern browsers blocking third-party cookies
     maxAge: 1000 * 60 * 60 * 24
   }
 }));
