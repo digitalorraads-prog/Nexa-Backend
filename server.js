@@ -21,7 +21,7 @@ const allowedOrigins = [
   "https://nexa-ip26.onrender.com",
   "https://nexa-infotech.vercel.app",
   "https://tubular-speculoos-df6c39.netlify.app",
-  "nexainfotech.netlify.app"
+  "https://nexainfotech.netlify.app"
 ];
 
 app.use(cors({
