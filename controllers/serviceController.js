@@ -5,7 +5,7 @@ const cloudinary = require("../config/cloudinary"); // ✅ Import cloudinary
 // Helper function to clean slug but preserve slashes
 const cleanSlug = (slug) => {
   if (!slug) return slug;
-  
+
   return slug
     .toLowerCase()
     .replace(/[^a-z0-9\/-]+/g, '-')
@@ -24,7 +24,7 @@ const uploadImageToCloudinary = async (file) => {
       folder: 'services', // Different folder from blogs
       resource_type: 'auto'
     });
-    
+
     return result.secure_url;
   } catch (error) {
     console.error('Cloudinary upload error:', error);
@@ -35,10 +35,10 @@ const uploadImageToCloudinary = async (file) => {
 // 🔥 ADD SERVICE
 exports.addService = async (req, res) => {
   try {
-    const { 
-      pageTitle, 
-      miniDescription, 
-      buttonText, 
+    const {
+      pageTitle,
+      miniDescription,
+      buttonText,
       slug,
       heroHeading,
       heroParagraphs,
@@ -47,9 +47,9 @@ exports.addService = async (req, res) => {
 
     // Validation - sirf pageTitle required hai
     if (!pageTitle) {
-      return res.status(400).json({ 
+      return res.status(400).json({
         success: false,
-        error: "Page Title is Required" 
+        error: "Page Title is Required"
       });
     }
 
@@ -58,26 +58,28 @@ exports.addService = async (req, res) => {
     if (slug) {
       finalSlug = cleanSlug(slug);
     } else {
-      finalSlug = slugify(pageTitle, { 
-        lower: true, 
+      finalSlug = slugify(pageTitle, {
+        lower: true,
         strict: true,
-        remove: /[*+~.()'"!:@]/g 
+        remove: /[*+~.()'"!:@]/g
       });
     }
 
     // Check if service already exists
     const existing = await Service.findOne({ slug: finalSlug });
     if (existing) {
-      return res.status(400).json({ 
+      return res.status(400).json({
         success: false,
-        error: "Service with this slug already exists" 
+        error: "Service with this slug already exists"
       });
     }
 
-    // Upload image to Cloudinary if file exists
+    // Upload image to Cloudinary if file exists or use the uploaded URL
     let heroImage = "";
     if (req.file) {
       heroImage = await uploadImageToCloudinary(req.file);
+    } else if (req.body.heroImage) {
+      heroImage = req.body.heroImage;
     }
 
     // Parse heroHeading if it's a string
@@ -141,7 +143,7 @@ exports.addService = async (req, res) => {
     });
 
     await newService.save();
-    
+
     res.status(201).json({
       success: true,
       message: "Service created successfully",
@@ -150,9 +152,9 @@ exports.addService = async (req, res) => {
 
   } catch (error) {
     console.error("Error in addService:", error);
-    res.status(500).json({ 
+    res.status(500).json({
       success: false,
-      error: "Internal server error" 
+      error: "Internal server error"
     });
   }
 };
@@ -171,9 +173,9 @@ exports.getAllServices = async (req, res) => {
     });
   } catch (error) {
     console.error("Error in getAllServices:", error);
-    res.status(500).json({ 
+    res.status(500).json({
       success: false,
-      error: "Internal server error" 
+      error: "Internal server error"
     });
   }
 };
@@ -182,13 +184,13 @@ exports.getAllServices = async (req, res) => {
 exports.getServiceBySlug = async (req, res) => {
   try {
     const { slug } = req.params;
-    
+
     const service = await Service.findOne({ slug });
 
     if (!service) {
-      return res.status(404).json({ 
+      return res.status(404).json({
         success: false,
-        message: "Service not found" 
+        message: "Service not found"
       });
     }
 
@@ -198,9 +200,9 @@ exports.getServiceBySlug = async (req, res) => {
     });
   } catch (error) {
     console.error("Error in getServiceBySlug:", error);
-    res.status(500).json({ 
+    res.status(500).json({
       success: false,
-      error: "Internal server error" 
+      error: "Internal server error"
     });
   }
 };
@@ -209,13 +211,13 @@ exports.getServiceBySlug = async (req, res) => {
 exports.getServiceById = async (req, res) => {
   try {
     const { id } = req.params;
-    
+
     const service = await Service.findById(id);
 
     if (!service) {
-      return res.status(404).json({ 
+      return res.status(404).json({
         success: false,
-        message: "Service not found" 
+        message: "Service not found"
       });
     }
 
@@ -225,9 +227,9 @@ exports.getServiceById = async (req, res) => {
     });
   } catch (error) {
     console.error("Error in getServiceById:", error);
-    res.status(500).json({ 
+    res.status(500).json({
       success: false,
-      error: "Internal server error" 
+      error: "Internal server error"
     });
   }
 };
@@ -236,10 +238,10 @@ exports.getServiceById = async (req, res) => {
 exports.updateService = async (req, res) => {
   try {
     const { id } = req.params;
-    const { 
-      pageTitle, 
-      miniDescription, 
-      buttonText, 
+    const {
+      pageTitle,
+      miniDescription,
+      buttonText,
       slug,
       heroHeading,
       heroParagraphs,
@@ -247,28 +249,30 @@ exports.updateService = async (req, res) => {
     } = req.body;
 
     const updateData = {};
-    
+
     // Basic fields
     if (pageTitle) updateData.pageTitle = pageTitle;
     if (miniDescription !== undefined) updateData.miniDescription = miniDescription;
     if (buttonText !== undefined) updateData.buttonText = buttonText;
-    
+
     // Handle slug update
     if (slug) {
       updateData.slug = cleanSlug(slug);
     } else if (pageTitle && !slug) {
-      updateData.slug = slugify(pageTitle, { 
-        lower: true, 
+      updateData.slug = slugify(pageTitle, {
+        lower: true,
         strict: true,
-        remove: /[*+~.()'"!:@]/g 
+        remove: /[*+~.()'"!:@]/g
       });
     }
-    
-    // Upload new image to Cloudinary if file exists
+
+    // Upload new image to Cloudinary if file exists or use the uploaded URL
     if (req.file) {
       updateData.heroImage = await uploadImageToCloudinary(req.file);
+    } else if (req.body.heroImage !== undefined) {
+      updateData.heroImage = req.body.heroImage;
     }
-    
+
     // Handle heroHeading
     if (heroHeading !== undefined) {
       if (typeof heroHeading === 'string' && heroHeading) {
@@ -281,7 +285,7 @@ exports.updateService = async (req, res) => {
         updateData.heroHeading = heroHeading;
       }
     }
-    
+
     // Handle heroParagraphs
     if (heroParagraphs !== undefined) {
       if (typeof heroParagraphs === 'string' && heroParagraphs) {
@@ -294,20 +298,20 @@ exports.updateService = async (req, res) => {
         updateData.heroParagraphs = heroParagraphs;
       }
     }
-    
+
     if (heroImageAlt !== undefined) updateData.heroImageAlt = heroImageAlt;
 
     // Check if new slug already exists
     if (updateData.slug) {
-      const existing = await Service.findOne({ 
+      const existing = await Service.findOne({
         slug: updateData.slug,
         _id: { $ne: id }
       });
-      
+
       if (existing) {
-        return res.status(400).json({ 
+        return res.status(400).json({
           success: false,
-          error: "Service with this slug already exists" 
+          error: "Service with this slug already exists"
         });
       }
     }
@@ -315,16 +319,16 @@ exports.updateService = async (req, res) => {
     const updated = await Service.findByIdAndUpdate(
       id,
       updateData,
-      { 
+      {
         new: true,
         runValidators: true
       }
     );
 
     if (!updated) {
-      return res.status(404).json({ 
+      return res.status(404).json({
         success: false,
-        message: "Service not found" 
+        message: "Service not found"
       });
     }
 
@@ -335,9 +339,9 @@ exports.updateService = async (req, res) => {
     });
   } catch (error) {
     console.error("Error in updateService:", error);
-    res.status(500).json({ 
+    res.status(500).json({
       success: false,
-      error: "Internal server error" 
+      error: "Internal server error"
     });
   }
 };
@@ -346,13 +350,13 @@ exports.updateService = async (req, res) => {
 exports.deleteService = async (req, res) => {
   try {
     const { id } = req.params;
-    
+
     const deleted = await Service.findByIdAndDelete(id);
 
     if (!deleted) {
-      return res.status(404).json({ 
+      return res.status(404).json({
         success: false,
-        message: "Service not found" 
+        message: "Service not found"
       });
     }
 
@@ -366,7 +370,7 @@ exports.deleteService = async (req, res) => {
       }
     }
 
-    res.json({ 
+    res.json({
       success: true,
       message: "Service deleted successfully",
       data: {
@@ -376,9 +380,9 @@ exports.deleteService = async (req, res) => {
     });
   } catch (error) {
     console.error("Error in deleteService:", error);
-    res.status(500).json({ 
+    res.status(500).json({
       success: false,
-      error: "Internal server error" 
+      error: "Internal server error"
     });
   }
 };
@@ -404,9 +408,9 @@ exports.deleteMultipleServices = async (req, res) => {
     });
   } catch (error) {
     console.error("Error in deleteMultipleServices:", error);
-    res.status(500).json({ 
+    res.status(500).json({
       success: false,
-      error: "Internal server error" 
+      error: "Internal server error"
     });
   }
 };
@@ -415,9 +419,9 @@ exports.deleteMultipleServices = async (req, res) => {
 exports.uploadImage = async (req, res) => {
   try {
     if (!req.file) {
-      return res.status(400).json({ 
-        success: false, 
-        message: 'No file uploaded' 
+      return res.status(400).json({
+        success: false,
+        message: 'No file uploaded'
       });
     }
 
@@ -432,9 +436,9 @@ exports.uploadImage = async (req, res) => {
 
   } catch (error) {
     console.error('Upload error:', error);
-    res.status(500).json({ 
-      success: false, 
-      message: error.message 
+    res.status(500).json({
+      success: false,
+      message: error.message
     });
   }
 };
