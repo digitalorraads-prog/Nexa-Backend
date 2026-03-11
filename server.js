@@ -17,13 +17,8 @@ mongoose.connect(process.env.MONGO_URI)
 app.set("trust proxy", 1); // Trust the first proxy (Render)
 
 const allowedOrigins = [
-  "http://localhost:5173",
-  "https://nexa-ip26.onrender.com",
-  "https://nexa-infotech.vercel.app",
-  "https://tubular-speculoos-df6c39.netlify.app",
-  "https://nexainfotech.netlify.app",
-  /\.netlify\.app$/, // Allow all netlify subdomains
-  /\.onrender\.com$/  // Allow all render subdomains
+
+  "https://nexainfotech.com"
 ];
 
 app.use(cors({
