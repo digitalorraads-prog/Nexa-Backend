@@ -18,7 +18,8 @@ app.set("trust proxy", 1); // Trust the first proxy (Render)
 
 const allowedOrigins = [
 
-  "https://nexainfotech.com"
+  "https://nexainfotech.com",
+  "http://localhost:5173",
 ];
 
 app.use(cors({
