@@ -19,7 +19,7 @@ app.set("trust proxy", 1); // Trust the first proxy (Render)
 const allowedOrigins = [
 
   "https://nexainfotech.com",
-  "http://localhost:5173",
+
 ];
 
 app.use(cors({
@@ -49,16 +49,16 @@ app.use(session({
   name: "nexa.sid",
   secret: process.env.SESSION_SECRET,
   proxy: true, // Required for secure cookies behind a proxy (like Render)
-  resave: true, // Force session to save even if not modified
-  saveUninitialized: false,
+  resave: false, // Don't force save if not modified
+  saveUninitialized: false, // Don't create session until something stored
   store: MongoStore.create({
     mongoUrl: process.env.MONGO_URI,
   }),
   cookie: {
     httpOnly: true,
-    secure: true,
-    sameSite: 'none',
-    partitioned: true, // Required for modern browsers blocking third-party cookies
+    secure: process.env.NODE_ENV === "production",
+    sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
+    partitioned: process.env.NODE_ENV === "production", // Required for modern browsers blocking third-party cookies
     maxAge: 1000 * 60 * 60 * 24
   }
 }));
@@ -85,6 +85,7 @@ app.use("/api/services", require("./routes/serviceRoutes"));
 app.use("/api/navbar", require("./routes/navbarRoutes"));
 app.use("/api/heroes", require("./routes/heroRoutes"));
 app.use("/api/pages", require("./routes/pageRoutes"));
+app.use("/api/seo", require("./routes/seoRoutes"));
 
 /* ================= HOME ROUTE ================= */
 app.get("/", (req, res) => {
@@ -103,5 +104,5 @@ app.listen(PORT, () => {
   console.log(`\n🚀 Server running on port ${PORT}`);
   console.log(`📝 Environment: ${process.env.NODE_ENV || 'development'}`);
   console.log(`📧 Email: ${process.env.EMAIL_USER ? '✅ Configured' : '❌ Not configured'}`);
-  console.log(`🌐 Frontend: http://localhost:5173\n`);
+
 });

@@ -26,15 +26,21 @@ router.post("/login", (req, res) => {
   res.status(401).json({ message: "Invalid Credentials" });
 });
 
-/* CHECK AUTH */
+/* CHECK AUTH (Hardened) */
 router.get("/check-auth", (req, res) => {
-  if (req.session?.admin) {
+  if (req.session?.admin && req.session.admin.email === "admin@gmail.com") {
     return res.json({
       authenticated: true,
       admin: { email: req.session.admin.email }
     });
   }
-  res.status(401).json({ authenticated: false });
+  
+  // Clear potential invalid bits
+  if (req.session) {
+    req.session.admin = null;
+  }
+  
+  res.status(401).json({ authenticated: false, message: "Unauthorized admin access" });
 });
 
 /* LOGOUT */
