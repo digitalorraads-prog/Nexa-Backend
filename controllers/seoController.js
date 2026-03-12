@@ -76,9 +76,14 @@ exports.createSeo = async (req, res) => {
 // Update SEO entry
 exports.updateSeo = async (req, res) => {
   try {
+    const existingSeo = await Seo.findById(req.params.id);
+    if (!existingSeo) {
+      return res.status(404).json({ message: "SEO entry not found" });
+    }
+
     const updaterEmail = req.session.seoUser?.email || req.session.admin?.email || "Unknown";
     let updateData = { ...req.body, updatedBy: updaterEmail, updatedAt: Date.now() };
-    
+
     // Clean the URL if it's being updated
     if (updateData.pageUrl) {
       try {
@@ -90,16 +95,50 @@ exports.updateSeo = async (req, res) => {
         }
       } catch (e) {}
     }
+    
+    // Calculate field changes for history
+    const changes = [];
+    const fieldsToTrack = ['metaTitle', 'metaDescription', 'metaKeywords', 'canonicalUrl', 'robotsTag', 'pageUrl'];
+    
+    fieldsToTrack.forEach(field => {
+      if (updateData[field] !== undefined && String(updateData[field]) !== String(existingSeo[field])) {
+        changes.push({
+          field,
+          oldValue: String(existingSeo[field] || ""),
+          newValue: String(updateData[field] || "")
+        });
+      }
+    });
+
+    if (changes.length > 0) {
+      // Add to history array (keep last 10 changes to avoid document bloat)
+      const historyItem = {
+        updatedBy: updaterEmail,
+        updatedAt: new Date(),
+        changes
+      };
+      
+      const updatedSeo = await Seo.findByIdAndUpdate(
+        req.params.id,
+        { 
+          $set: updateData,
+          $push: { 
+            history: { 
+              $each: [historyItem], 
+              $slice: -10 
+            } 
+          }
+        },
+        { new: true, runValidators: true }
+      );
+      return res.json(updatedSeo);
+    }
 
     const updatedSeo = await Seo.findByIdAndUpdate(
       req.params.id,
       updateData,
       { new: true, runValidators: true }
     );
-
-    if (!updatedSeo) {
-      return res.status(404).json({ message: "SEO entry not found" });
-    }
 
     res.json(updatedSeo);
   } catch (error) {
