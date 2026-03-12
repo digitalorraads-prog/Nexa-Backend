@@ -17,8 +17,9 @@ mongoose.connect(process.env.MONGO_URI)
 app.set("trust proxy", 1); // Trust the first proxy (Render)
 
 const allowedOrigins = [
-
+  "http://localhost:5173",
   "https://nexainfotech.com",
+  "http://localhost:5174"
 
 ];
 

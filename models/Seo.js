@@ -17,6 +17,9 @@ const seoSchema = new mongoose.Schema({
   metaKeywords: {
     type: String,
   },
+  canonicalUrl: {
+    type: String, // Preferred URL for the search engine
+  },
   createdBy: {
     type: String, // Email of the original creator
   },
