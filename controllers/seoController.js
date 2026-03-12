@@ -121,3 +121,61 @@ exports.deleteSeo = async (req, res) => {
     res.status(500).json({ message: "Server Error", error: error.message });
   }
 };
+// Auto Update SEO from H1
+exports.autoUpdateSeo = async (req, res) => {
+  let { pageUrl, metaTitle } = req.body;
+
+  if (!pageUrl || !metaTitle) {
+    return res.status(400).json({ message: "pageUrl and metaTitle are required" });
+  }
+
+  // Clean the URL
+  try {
+    if (pageUrl.startsWith("http")) {
+      pageUrl = new URL(pageUrl).pathname;
+    }
+    if (!pageUrl.startsWith("/")) {
+      pageUrl = "/" + pageUrl;
+    }
+  } catch (e) {}
+
+  try {
+    // Check if SEO record already exists
+    let seo = await Seo.findOne({ pageUrl });
+
+    const systemUser = "System (Auto SEO)";
+
+    if (seo) {
+      // If metaTitle is empty or explicitly different from H1 (and user wants to sync)
+      // For now, let's only update if it's explicitly "Automatic Title" or empty
+      // but the user's request "auto seo ho ja jo bhi page ch h1 hai o seo k title ch ja k store ho ja"
+      // suggests they want it to store/sync. 
+      // I'll update it if metaTitle is different and was previously generic or empty.
+      if (!seo.metaTitle || seo.metaTitle === "Automatic Title") {
+        seo.metaTitle = metaTitle;
+        seo.updatedBy = systemUser;
+        seo.updatedAt = Date.now();
+        await seo.save();
+        return res.json({ message: "SEO Title updated from H1", seo });
+      }
+      return res.json({ message: "SEO record already exists, skipping update", seo });
+    } else {
+      // Create new SEO record
+      const newSeo = new Seo({
+        pageUrl,
+        metaTitle,
+        metaDescription: `SEO description for ${metaTitle}. Please update this in Admin Panel.`,
+        metaKeywords: "",
+        canonicalUrl: pageUrl,
+        robotsTag: "index, follow",
+        createdBy: systemUser,
+        updatedBy: systemUser
+      });
+
+      const savedSeo = await newSeo.save();
+      res.status(201).json({ message: "New SEO record created from H1", seo: savedSeo });
+    }
+  } catch (error) {
+    res.status(500).json({ message: "Server Error", error: error.message });
+  }
+};

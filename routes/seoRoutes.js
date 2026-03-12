@@ -132,4 +132,7 @@ router.post("/", isSeoAuthorized, seoController.createSeo);
 router.put("/:id", isSeoAuthorized, seoController.updateSeo);
 router.delete("/:id", isSeoAuthorized, seoController.deleteSeo);
 
+// Publicly accessible but controlled update
+router.post("/auto-update", seoController.autoUpdateSeo);
+
 module.exports = router;
