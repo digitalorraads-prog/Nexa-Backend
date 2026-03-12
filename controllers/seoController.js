@@ -1,4 +1,5 @@
 const Seo = require("../models/Seo");
+const Service = require("../models/Service");
 
 // Get all SEO entries
 exports.getAllSeo = async (req, res) => {
@@ -177,5 +178,60 @@ exports.autoUpdateSeo = async (req, res) => {
     }
   } catch (error) {
     res.status(500).json({ message: "Server Error", error: error.message });
+  }
+};
+// Bulk Auto Update SEO for Services
+exports.bulkAutoUpdateServices = async (req, res) => {
+  try {
+    const services = await Service.find();
+    if (!services || services.length === 0) {
+      return res.status(404).json({ message: "No services found to update" });
+    }
+
+    const systemUser = "System (Auto SEO Services)";
+    let createdCount = 0;
+    let updatedCount = 0;
+
+    for (const service of services) {
+      let url = service.slug;
+      if (!url.startsWith("/")) url = "/" + url;
+
+      // Check if SEO record exists
+      let seo = await Seo.findOne({ pageUrl: url });
+
+      if (seo) {
+        // Update if title is generic or empty
+        if (!seo.metaTitle || seo.metaTitle === "Automatic Title") {
+          seo.metaTitle = service.pageTitle;
+          seo.metaDescription = seo.metaDescription || service.miniDescription || `SEO description for ${service.pageTitle}`;
+          seo.updatedBy = systemUser;
+          seo.updatedAt = Date.now();
+          await seo.save();
+          updatedCount++;
+        }
+      } else {
+        // Create new
+        const newSeo = new Seo({
+          pageUrl: url,
+          metaTitle: service.pageTitle,
+          metaDescription: service.miniDescription || `SEO description for ${service.pageTitle}`,
+          metaKeywords: "",
+          canonicalUrl: url,
+          robotsTag: "index, follow",
+          createdBy: systemUser,
+          updatedBy: systemUser
+        });
+        await newSeo.save();
+        createdCount++;
+      }
+    }
+
+    res.json({ 
+      success: true, 
+      message: `Bulk update completed: ${createdCount} created, ${updatedCount} updated`,
+      stats: { createdCount, updatedCount }
+    });
+  } catch (error) {
+    res.status(500).json({ message: "Server Error during bulk update", error: error.message });
   }
 };

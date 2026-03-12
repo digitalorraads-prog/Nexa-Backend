@@ -132,6 +132,9 @@ router.post("/", isSeoAuthorized, seoController.createSeo);
 router.put("/:id", isSeoAuthorized, seoController.updateSeo);
 router.delete("/:id", isSeoAuthorized, seoController.deleteSeo);
 
+// Protected Bulk Update
+router.post("/bulk-auto-services", isSeoAuthorized, seoController.bulkAutoUpdateServices);
+
 // Publicly accessible but controlled update
 router.post("/auto-update", seoController.autoUpdateSeo);
 
