@@ -36,7 +36,7 @@ exports.getSeoByUrl = async (req, res) => {
 
 // Create new SEO entry
 exports.createSeo = async (req, res) => {
-  let { pageUrl, metaTitle, metaDescription, metaKeywords, canonicalUrl } = req.body;
+  let { pageUrl, metaTitle, metaDescription, metaKeywords, canonicalUrl, robotsTag } = req.body;
 
   // Clean the URL: only store the pathname
   try {
@@ -58,6 +58,7 @@ exports.createSeo = async (req, res) => {
       metaDescription,
       metaKeywords,
       canonicalUrl,
+      robotsTag,
       createdBy: creatorEmail,
       updatedBy: creatorEmail
     });

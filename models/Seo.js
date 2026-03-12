@@ -20,6 +20,10 @@ const seoSchema = new mongoose.Schema({
   canonicalUrl: {
     type: String, // Preferred URL for the search engine
   },
+  robotsTag: {
+    type: String, // Robots meta tag (index, follow, etc.)
+    default: "index, follow",
+  },
   createdBy: {
     type: String, // Email of the original creator
   },
