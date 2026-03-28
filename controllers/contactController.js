@@ -13,7 +13,7 @@ const createContact = async (req, res) => {
     if (!name || !email || !message) {
       return res.status(400).json({
         success: false,
-        message: "❌ Name, email aur message zaroori hain"
+        message: "❌ Name, email and message are required"
       });
     }
 
@@ -22,7 +22,7 @@ const createContact = async (req, res) => {
     if (!emailRegex.test(email)) {
       return res.status(400).json({
         success: false,
-        message: "❌ Email address sahi nahi hai"
+        message: "❌ Invalid email address"
       });
     }
 
@@ -78,7 +78,7 @@ const createContact = async (req, res) => {
     
     res.status(500).json({
       success: false,
-      message: "❌ Server error. Kuch problem hui hai.",
+      message: "❌ Server error. Something went wrong.",
       ...(process.env.NODE_ENV === 'development' && { error: error.message })
     });
   }

@@ -2,7 +2,7 @@
 const { Resend } = require('resend');
 
 /**
- * Admin ko email bhejta hai using Resend.com
+ * Sends email to admin using Resend.com
  */
 const sendAdminEmail = async ({ name, email, phone, message }) => {
   try {
@@ -24,7 +24,7 @@ const sendAdminEmail = async ({ name, email, phone, message }) => {
     const { data, error } = await resend.emails.send({
       from: `Nexa Website <${fromEmail}>`,
       to: [adminEmail],
-      subject: '🔔 Naya Contact Form Submission - Nexa',
+      subject: '🔔 New Contact Form Submission - Nexa',
       html: `
         <!DOCTYPE html>
         <html>
@@ -47,13 +47,13 @@ const sendAdminEmail = async ({ name, email, phone, message }) => {
         <body>
           <div class="container">
             <div class="header">
-              <h2>📬 Naya Contact Form Message</h2>
+              <h2>📬 New Contact Form Message</h2>
             </div>
             
             <div class="content">
               <div class="details">
                 <div class="field">
-                  <span class="label">👤 Naam:</span>
+                  <span class="label">👤 Name:</span>
                   <span class="value"><strong>${name}</strong></span>
                 </div>
                 
@@ -69,7 +69,7 @@ const sendAdminEmail = async ({ name, email, phone, message }) => {
                 
                 <div class="field">
                   <span class="label">⏰ Time:</span>
-                  <span class="value">${new Date().toLocaleString('en-IN', { timeZone: 'Asia/Kolkata' })}</span>
+                  <span class="value">${new Date().toLocaleString('en-US', { timeZone: 'Asia/Kolkata' })}</span>
                 </div>
               </div>
 
@@ -79,7 +79,7 @@ const sendAdminEmail = async ({ name, email, phone, message }) => {
               </div>
               
               <div class="footer">
-                <p>⚠️ Yeh email Resend.com ke zariye bheji gayi hai</p>
+                <p>⚠️ This email was sent via Resend.com</p>
                 <p>&copy; ${new Date().getFullYear()} Nexa. All rights reserved.</p>
               </div>
             </div>
@@ -88,9 +88,9 @@ const sendAdminEmail = async ({ name, email, phone, message }) => {
         </html>
       `,
       text: `
-        Naya Contact Form Message
+        New Contact Form Message
         
-        Naam: ${name}
+        Name: ${name}
         Email: ${email}
         Phone: ${phone || 'N/A'}
         Time: ${new Date().toLocaleString()}
