@@ -38,19 +38,25 @@ const createContact = async (req, res) => {
     console.log('✅ Contact saved to database. ID:', newMessage._id);
 
     // 2. Email bhejo admin ko (background mein)
+    console.log('📬 Attempting to send admin email...');
+    console.log('🔑 RESEND_API_KEY present:', !!process.env.RESEND_API_KEY);
+
     if (process.env.RESEND_API_KEY) {
       // Don't await - let it run in background
       sendAdminEmail({ name, phone, email, message })
         .then(result => {
           if (result.success) {
-            console.log(`✅ Admin email sent for contact ${newMessage._id}`);
+            console.log(`✅ Admin email sent for contact ${newMessage._id}. Message ID: ${result.messageId}`);
           } else {
             console.log(`⚠️ Admin email failed for contact ${newMessage._id}:`, result.error);
+            console.log('💡 Note: onboarding@resend.dev requires ADMIN_EMAIL to match your Resend account email.');
           }
         })
         .catch(err => {
           console.error(`❌ Email error for contact ${newMessage._id}:`, err);
         });
+    } else {
+      console.log('⚠️ Skipping email: RESEND_API_KEY is missing in .env');
     }
 
     // 3. Success response

@@ -16,7 +16,9 @@ const sendAdminEmail = async ({ name, email, phone, message }) => {
     // Default from email (Resend verified domain or onboarding email)
     // IMPORTANT: Users should verify their own domain for production
     const fromEmail = process.env.FROM_EMAIL || 'onboarding@resend.dev';
-    const adminEmail = process.env.ADMIN_EMAIL || 'sainirakesh3221@gmail.com';
+    const adminEmail = process.env.ADMIN_EMAIL || 'nexainfotech1@gmail.com';
+
+    console.log(`📤 Sending email from: ${fromEmail} to: ${adminEmail}`);
 
     // Send email using Resend
     const { data, error } = await resend.emails.send({
