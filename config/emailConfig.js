@@ -79,7 +79,7 @@ const sendAdminEmail = async ({ name, email, phone, message }) => {
               </div>
               
               <div class="footer">
-                <p>⚠️ This email was sent via Resend.com</p>
+                <p>📩 Contact: info@nexainfotech.com</p>
                 <p>&copy; ${new Date().getFullYear()} Nexa. All rights reserved.</p>
               </div>
             </div>
