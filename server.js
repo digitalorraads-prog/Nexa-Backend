@@ -88,6 +88,9 @@ app.use("/api/heroes", require("./routes/heroRoutes"));
 app.use("/api/pages", require("./routes/pageRoutes"));
 app.use("/api/seo", require("./routes/seoRoutes"));
 
+/* ================= SITEMAP ================= */
+app.use("/", require("./routes/sitemapRoutes"));
+
 /* ================= HOME ROUTE ================= */
 app.get("/", (req, res) => {
   res.send("🚀 Nexa Backend API Running Successfully");
