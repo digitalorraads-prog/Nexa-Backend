@@ -104,6 +104,6 @@ const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
   console.log(`\n🚀 Server running on port ${PORT}`);
   console.log(`📝 Environment: ${process.env.NODE_ENV || 'development'}`);
-  console.log(`📧 Email: ${process.env.EMAIL_USER ? '✅ Configured' : '❌ Not configured'}`);
+  console.log(`📧 Resend Email: ${process.env.RESEND_API_KEY ? '✅ Configured' : '❌ Not configured'}`);
 
 });

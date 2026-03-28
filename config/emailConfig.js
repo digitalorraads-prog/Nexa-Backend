@@ -1,29 +1,27 @@
 // config/emailConfig.js
-const nodemailer = require('nodemailer');
+const { Resend } = require('resend');
 
 /**
- * Admin ko email bhejta hai
+ * Admin ko email bhejta hai using Resend.com
  */
 const sendAdminEmail = async ({ name, email, phone, message }) => {
   try {
-    // Check if email credentials exist
-    if (!process.env.EMAIL_USER || !process.env.EMAIL_PASS) {
-      throw new Error('Email credentials missing in .env file');
+    // Check if Resend API key exists
+    if (!process.env.RESEND_API_KEY) {
+      throw new Error('RESEND_API_KEY missing in .env file');
     }
 
-    // Create transporter
-    const transporter = nodemailer.createTransport({
-      service: 'gmail',
-      auth: {
-        user: process.env.EMAIL_USER,
-        pass: process.env.EMAIL_PASS
-      }
-    });
+    const resend = new Resend(process.env.RESEND_API_KEY);
     
-    // Email options
-    const mailOptions = {
-      from: `"Nexa Website" <${process.env.EMAIL_USER}>`,
-      to: process.env.ADMIN_EMAIL || process.env.EMAIL_USER,
+    // Default from email (Resend verified domain or onboarding email)
+    // IMPORTANT: Users should verify their own domain for production
+    const fromEmail = process.env.FROM_EMAIL || 'onboarding@resend.dev';
+    const adminEmail = process.env.ADMIN_EMAIL || 'sainirakesh3221@gmail.com';
+
+    // Send email using Resend
+    const { data, error } = await resend.emails.send({
+      from: `Nexa Website <${fromEmail}>`,
+      to: [adminEmail],
       subject: '🔔 Naya Contact Form Submission - Nexa',
       html: `
         <!DOCTYPE html>
@@ -79,7 +77,7 @@ const sendAdminEmail = async ({ name, email, phone, message }) => {
               </div>
               
               <div class="footer">
-                <p>⚠️ Yeh email automatically bheji gayi hai</p>
+                <p>⚠️ Yeh email Resend.com ke zariye bheji gayi hai</p>
                 <p>&copy; ${new Date().getFullYear()} Nexa. All rights reserved.</p>
               </div>
             </div>
@@ -98,32 +96,19 @@ const sendAdminEmail = async ({ name, email, phone, message }) => {
         Message:
         ${message}
       `
-    };
-    
-    // Send email
-    const info = await transporter.sendMail(mailOptions);
-    console.log('✅ Admin email sent. Message ID:', info.messageId);
-    
-    return { 
-      success: true, 
-      messageId: info.messageId 
-    };
+    });
+
+    if (error) {
+      console.error('❌ Resend API error:', error);
+      return { success: false, error: error.message };
+    }
+
+    console.log('✅ Admin email sent via Resend. ID:', data.id);
+    return { success: true, messageId: data.id };
     
   } catch (error) {
     console.error('❌ Email send error:', error.message);
-    
-    // User-friendly error messages
-    let errorMessage = 'Email send failed';
-    if (error.code === 'EAUTH') {
-      errorMessage = 'Email authentication failed. Check App Password.';
-    } else if (error.code === 'ESOCKET') {
-      errorMessage = 'Network error. Check internet connection.';
-    }
-    
-    return { 
-      success: false, 
-      error: errorMessage 
-    };
+    return { success: false, error: error.message };
   }
 };
 

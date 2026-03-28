@@ -38,7 +38,7 @@ const createContact = async (req, res) => {
     console.log('✅ Contact saved to database. ID:', newMessage._id);
 
     // 2. Email bhejo admin ko (background mein)
-    if (process.env.EMAIL_USER && process.env.EMAIL_PASS) {
+    if (process.env.RESEND_API_KEY) {
       // Don't await - let it run in background
       sendAdminEmail({ name, phone, email, message })
         .then(result => {
