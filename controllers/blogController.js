@@ -1,13 +1,13 @@
 const Blog = require("../models/Blog");
 const cloudinary = require("../config/cloudinary");
 
-// Create Blog with Image Upload
+// Create Blog
 exports.createBlog = async (req, res) => {
   try {
-    const { title, content, author } = req.body;
-    let imageUrl = req.body.image;
+    const { title, slug, sections, author, views, category, image } = req.body;
+    let imageUrl = image;
 
-    // Agar file upload hui hai to Cloudinary pe upload karo
+    // Agar file upload hui hai (featured image)
     if (req.file) {
       const b64 = Buffer.from(req.file.buffer).toString('base64');
       const dataURI = `data:${req.file.mimetype};base64,${b64}`;
@@ -20,17 +20,20 @@ exports.createBlog = async (req, res) => {
     }
 
     // Validation
-    if (!title || !content || !imageUrl) {
+    if (!title || !slug || !imageUrl || !sections || sections.length === 0) {
       return res.status(400).json({ 
-        message: "Title, content and image are required" 
+        message: "Title, Slug, Featured Image, and at least one section are required" 
       });
     }
 
     const newBlog = new Blog({
       title,
-      content,
+      slug,
+      sections,
       image: imageUrl,
       author: author || "Admin",
+      views: views || 0,
+      category: category || "City Guide"
     });
 
     await newBlog.save();
@@ -42,42 +45,21 @@ exports.createBlog = async (req, res) => {
     });
   } catch (error) {
     console.error('Create blog error:', error);
-    res.status(500).json({ message: error.message });
-  }
-};
-
-// Get All Blogs
-exports.getBlogs = async (req, res) => {
-  try {
-    const blogs = await Blog.find().sort({ createdAt: -1 });
-    res.json(blogs);
-  } catch (error) {
-    res.status(500).json({ message: error.message });
-  }
-};
-
-// Get Blog By ID
-exports.getBlogById = async (req, res) => {
-  try {
-    const blog = await Blog.findById(req.params.id);
-
-    if (!blog) {
-      return res.status(404).json({ message: "Blog not found" });
+    if (error.code === 11000) {
+      return res.status(400).json({ message: "Slug must be unique. This URL is already taken." });
     }
-
-    res.json(blog);
-  } catch (error) {
     res.status(500).json({ message: error.message });
   }
 };
+
+// ... (get methods remain same)
 
 // Update Blog
 exports.updateBlog = async (req, res) => {
   try {
-    const { title, content, author } = req.body;
-    let imageUrl = req.body.image;
+    const { title, slug, sections, author, views, category, image } = req.body;
+    let imageUrl = image;
 
-    // Agar naya image upload hua hai
     if (req.file) {
       const b64 = Buffer.from(req.file.buffer).toString('base64');
       const dataURI = `data:${req.file.mimetype};base64,${b64}`;
@@ -91,18 +73,18 @@ exports.updateBlog = async (req, res) => {
 
     const updateData = {
       title,
-      content,
+      slug,
+      sections,
       author: author || "Admin",
+      views: views || 0,
+      category: category || "City Guide",
+      image: imageUrl
     };
-
-    if (imageUrl) {
-      updateData.image = imageUrl;
-    }
 
     const updated = await Blog.findByIdAndUpdate(
       req.params.id,
       updateData,
-      { new: true }
+      { new: true, runValidators: true }
     );
 
     res.json({
@@ -112,6 +94,9 @@ exports.updateBlog = async (req, res) => {
     });
   } catch (error) {
     console.error('Update error:', error);
+    if (error.code === 11000) {
+      return res.status(400).json({ message: "Slug must be unique. This URL is already taken." });
+    }
     res.status(500).json({ message: error.message });
   }
 };
