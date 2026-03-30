@@ -1,14 +1,27 @@
 const mongoose = require("mongoose");
-
+ 
 const blogSchema = new mongoose.Schema(
   {
     title: {
       type: String,
       required: true,
     },
-    content: {
+    slug: {
       type: String,
       required: true,
+      unique: true,
+      lowercase: true,
+      trim: true
+    },
+    sections: [
+      {
+        type: { type: String, enum: ['text', 'image'], required: true },
+        content: { type: String, required: true } // Text content or Image URL
+      }
+    ],
+    views: {
+      type: Number,
+      default: 0
     },
     image: {
       type: String,
@@ -18,6 +31,10 @@ const blogSchema = new mongoose.Schema(
       type: String,
       default: "Admin",
     },
+    category: {
+      type: String,
+      default: "City Guide",
+    }
   },
   { timestamps: true }
 );
