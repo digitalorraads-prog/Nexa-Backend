@@ -24,62 +24,62 @@ const sendAdminEmail = async ({ name, email, phone, message }) => {
     const { data, error } = await resend.emails.send({
       from: `Nexa Website <${fromEmail}>`,
       to: [adminEmail],
-      subject: '🔔 New Contact Form Submission - Nexa',
+      subject: 'nexa infotech new contact form',
       html: `
         <!DOCTYPE html>
         <html>
         <head>
           <style>
-            body { font-family: Arial, sans-serif; line-height: 1.6; background-color: #f4f4f4; margin: 0; padding: 20px; }
-            .container { max-width: 600px; margin: 0 auto; background: white; border-radius: 10px; overflow: hidden; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
-            .header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 30px 20px; text-align: center; }
-            .header h2 { margin: 0; font-size: 24px; }
-            .content { padding: 30px; }
-            .details { background: #f8f9fa; border-radius: 8px; padding: 20px; margin: 20px 0; }
-            .field { margin-bottom: 15px; border-bottom: 1px solid #dee2e6; padding-bottom: 10px; }
-            .field:last-child { border-bottom: none; margin-bottom: 0; padding-bottom: 0; }
-            .label { font-weight: 600; color: #495057; min-width: 100px; display: inline-block; }
-            .value { color: #212529; }
-            .message-box { background: white; padding: 15px; border-radius: 6px; border-left: 4px solid #667eea; margin-top: 10px; }
-            .footer { text-align: center; margin-top: 30px; padding-top: 20px; border-top: 1px solid #dee2e6; color: #6c757d; font-size: 12px; }
+            body { font-family: Segoe UI, Arial, sans-serif; line-height: 1.4; background-color: #f9f9f9; margin: 0; padding: 10px; }
+            .container { max-width: 550px; margin: 0 auto; background: white; border-radius: 8px; overflow: hidden; border: 1px solid #eee; }
+            .header { background: #030712; color: #22d3ee; padding: 20px; text-align: center; border-bottom: 2px solid #22d3ee; }
+            .header h2 { margin: 0; font-size: 20px; text-transform: uppercase; letter-spacing: 1px; }
+            .content { padding: 20px; }
+            .details { background: #fdfdfd; border: 1px solid #f0f0f0; border-radius: 6px; padding: 15px; margin-bottom: 15px; }
+            .field { margin-bottom: 8px; font-size: 14px; }
+            .label { font-weight: 600; color: #666; width: 80px; display: inline-block; }
+            .value { color: #000; }
+            .message-label { color: #030712; font-weight: bold; margin: 15px 0 5px 0; font-size: 15px; }
+            .message-box { background: #f0f9ff; padding: 12px; border-radius: 4px; border-left: 3px solid #0891b2; font-size: 14px; color: #333; }
+            .footer { text-align: center; margin-top: 20px; padding-top: 15px; border-top: 1px solid #eee; color: #999; font-size: 11px; }
           </style>
         </head>
         <body>
           <div class="container">
             <div class="header">
-              <h2>📬 New Contact Form Message</h2>
+              <h2>New Inquiry Received</h2>
             </div>
             
             <div class="content">
               <div class="details">
                 <div class="field">
-                  <span class="label">👤 Name:</span>
-                  <span class="value"><strong>${name}</strong></span>
+                  <span class="label">Name:</span>
+                  <span class="value">${name}</span>
                 </div>
                 
                 <div class="field">
-                  <span class="label">📧 Email:</span>
+                  <span class="label">Email:</span>
                   <span class="value">${email}</span>
                 </div>
                 
                 <div class="field">
-                  <span class="label">📞 Phone:</span>
+                  <span class="label">Phone:</span>
                   <span class="value">${phone || 'N/A'}</span>
                 </div>
                 
-                <div class="field">
-                  <span class="label">⏰ Time:</span>
-                  <span class="value">${new Date().toLocaleString('en-US', { timeZone: 'Asia/Kolkata' })}</span>
+                <div class="field" style="margin-bottom: 0;">
+                  <span class="label">Date:</span>
+                  <span class="value">${new Date().toLocaleString('en-IN', { timeZone: 'Asia/Kolkata' })}</span>
                 </div>
               </div>
 
-              <h3 style="color: #495057;">💬 Message:</h3>
+              <div class="message-label">Message:</div>
               <div class="message-box">
-                <p style="margin: 0;">${message}</p>
+                ${message.replace(/\n/g, '<br>')}
               </div>
               
               <div class="footer">
-                <p>📩 Contact: info@nexainfotech.com</p>
+                <p>Nexa Info Tech - Contact Form Notification</p>
                 <p>&copy; ${new Date().getFullYear()} Nexa. All rights reserved.</p>
               </div>
             </div>
@@ -88,7 +88,7 @@ const sendAdminEmail = async ({ name, email, phone, message }) => {
         </html>
       `,
       text: `
-        New Contact Form Message
+        nexa infotech new contact form
         
         Name: ${name}
         Email: ${email}
